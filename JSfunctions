@@ -1,0 +1,140 @@
+function palindrome(str) {
+  str = str.split(/[\W^_]/g).join("").toLowerCase();
+  console.log(str);
+  var array=[];
+  for (var i = 0; i< str.length;i++){  
+    array.push(str[i]);
+  }
+  while(array.length >= 2){
+    if(array.shift() != array.pop()){
+      return false;
+    }
+  }
+  return true;
+}
+
+//console.log(palindrome("0_0 (: /-\ :) 0-0"));
+
+function convertToRoman(num) {
+  let result = "";
+  let romans = [{letter: "M", number: 1000}, {letter: "D", number: 500}, {letter: "C", number: 100}, {letter: "L", number: 50}, {letter: "X", number: 10}, {letter: "V", number: 5}, {letter: "I", number: 1}];
+  for(let index = 0; index < romans.length; index++){
+    let div = Math.floor(num / romans[index].number);
+    if(div)
+      for(let j = 0; j < div; j++)
+        result += romans[index].letter;
+    num = num % romans[index].number;
+    for(let j = index + 1; j < romans.length; j++){
+      if(romans[index].number == 2 * romans[j].number) continue;
+      let divSub = Math.floor(num / (romans[index].number - romans[j].number));
+      if(divSub)
+        result += romans[j].letter + romans[index].letter;
+      num = num % (romans[index].number - romans[j].number);
+    }
+  };
+
+  return result;
+}
+
+//console.log(convertToRoman(7));
+
+function rot13(str) {
+  for(let i = 0; i < str.length; i++){
+    let charCode = str.charCodeAt(i);
+    if(charCode >= 65 && charCode <= 90){
+      let arr = str.split("");
+      arr.splice(i, 1, String.fromCharCode((charCode - 65 + 13) % 26 + 65));
+      str = arr.join("");
+    }
+  }
+  
+  return str;
+}
+
+//rot13("SERR PBQR PNZC");
+
+function telephoneCheck(str) {
+  let onlyNumbers = "";
+  //The beggining must be a number or bracket
+  if(!/[\d\(]/.test(str[0])) return false;
+  //Counting how many numbers and checking if the string have any char different of digits, spaces and ()-
+  for(let i = 0; i < str.length; i++){
+    if(/\d/.test(str[i])) onlyNumbers += str[i];
+    if(!/[\d\(\)\-\s]/.test(str[i])) return false;
+  }
+
+  if(onlyNumbers.length < 10 || onlyNumbers.length > 11) return false;
+
+  let arr = str.split(/[-\s]/);
+  let noDashesAndSpaces = arr.join("");
+  let noFirstBrackets = noDashesAndSpaces;
+  let start = 0;
+
+  if(onlyNumbers.length == 11){
+    if(onlyNumbers[0] != "1") return false;
+    start = 1;
+  }
+  //Checking if a starting bracket has an end and removing the first 2 brackets
+  if(noDashesAndSpaces[start] == "("){
+    if(noDashesAndSpaces[start + 4] != ")") return false;
+    else{
+      let auxArr = noDashesAndSpaces.split("");
+      auxArr.splice(start + 4, 1);
+      auxArr.splice(start, 1);
+      noFirstBrackets = auxArr.join("");
+    }
+  }
+  //If there are any brackets remaining return false
+  if(/[\(\)]/.test(noFirstBrackets)) return false;
+
+  console.log(noFirstBrackets);
+  return true;
+}
+
+//console.log(telephoneCheck("2 (757) 622-7382"));
+
+function checkCashRegister(price, cash, cid) {
+  if(cash < price) return -1;
+
+  const values = {PENNY: 0.01, NICKEL: 0.05, DIME: 0.1, QUARTER: 0.25, ONE: 1, FIVE: 5, TEN : 10, TWENTY: 20, "ONE HUNDRED": 100};
+  var change = {status: "", change: []};
+  for(let value in values){
+    change.change.push([value, 0]);
+  }
+  var changeInt = cash - price;
+  for(let i = cid.length - 1; i >= 0; i--){
+    if(parseFloat(changeInt.toFixed(2)) >= values[cid[i][0]] && cid[i][1] >= values[cid[i][0]]){
+      changeInt -= values[cid[i][0]];
+      changeInt = parseFloat(changeInt.toFixed(2));
+      cid[i][1] -= values[cid[i][0]];
+      cid[i][1] = parseFloat(cid[i][1].toFixed(2));
+      change.change[i][1] += values[cid[i][0]];
+      change.change[i][1] = parseFloat(change.change[i][1].toFixed(2));
+      i++;
+    }
+  }
+  let changeSum = cid.reduce((sum, value) => sum += value[1], 0);
+  changeSum = parseFloat(changeSum.toFixed(2));
+  console.log(changeSum);
+    //Se faltou dinheiro remove todos os elementos do troco (que seria insuficiente)
+  if(parseFloat(changeInt.toFixed(2)) > 0){
+    change.change = [];
+    change.status = "INSUFFICIENT_FUNDS";
+  }
+  else if(changeSum == 0){
+    change.status = "CLOSED";
+  }
+  else{
+    change.change = change.change.filter(value => value[1] != 0);
+    change.status = "OPEN";
+    let reverseChange = [];
+    for(let i = 0; i < change.change.length; i++){
+      reverseChange.unshift(change.change[i]);
+    }
+    change.change = reverseChange;
+  }
+
+  return change;
+}
+
+//console.log(checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]));
